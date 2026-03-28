@@ -42,27 +42,21 @@ class ChatBot:
         return text
 
     def process(self, message: str, user_id: int = None) -> str:
-        """Основной метод: принимает строку, возвращает ответ бота."""
         original = message
         cleaned = self.preprocess_message(message)
         
         if user_id:
             self.current_user_id = user_id
-            # Загружаем имя пользователя из БД
             db_name = database.get_user(user_id)
             if db_name:
                 self.user_names[user_id] = db_name
             self.user_name = self.user_names.get(user_id)
-            
-            # Сохраняем/обновляем пользователя
             database.save_user(user_id, self.user_name)
         
-        # ===== НОВОЕ: Обработка через Dialog Manager =====
-        # Сначала проверяем, есть ли активный диалог
+        # Обработка через Dialog Manager
         state = dialog_manager.get_state(user_id) if user_id else None
         
         if state and state.value != "start":
-            # Если есть активный диалог, обрабатываем через соответствующий обработчик
             weather_response = handle_weather_dialog(user_id, original)
             if weather_response:
                 if user_id:
@@ -70,8 +64,7 @@ class ChatBot:
                 log_message(original, weather_response)
                 return weather_response
         
-        # Если нет активного диалога, пробуем обычные обработчики
-        # Проверяем, не спрашивают ли погоду (но без активного диалога)
+        # Проверка погоды через ML
         weather_response = handle_weather_dialog(user_id, original)
         if weather_response:
             if user_id:
@@ -79,7 +72,7 @@ class ChatBot:
             log_message(original, weather_response)
             return weather_response
         
-        # Если не погода, проверяем остальные шаблоны
+        # Остальные обработчики
         for pattern, handler in self.patterns:
             match = pattern.search(cleaned)
             if match:
@@ -89,14 +82,13 @@ class ChatBot:
                 log_message(original, response)
                 return response
         
-        # Если ни один шаблон не подошёл
         response = "Извините, я не понимаю ваш запрос."
         if user_id:
             database.log_to_db(user_id, original, response)
         log_message(original, response)
         return response
 
-    # ----- Обработчики (без изменений) -----
+    # ----- Обработчики -----
     def handle_greeting(self, match):
         user_name = self.user_names.get(self.current_user_id) if self.current_user_id else None
         if user_name:
@@ -118,25 +110,25 @@ class ChatBot:
         try:
             a = float(match.group(1))
             b = float(match.group(2))
-            return f"Результат сложения: {a} + {b} = {a + b}"
+            return f"Результат: {a} + {b} = {a + b}"
         except ValueError:
-            return "Не могу распознать числа для сложения."
+            return "Не могу распознать числа."
 
     def handle_subtraction(self, match):
         try:
             a = float(match.group(1))
             b = float(match.group(2))
-            return f"Результат вычитания: {a} - {b} = {a - b}"
+            return f"Результат: {a} - {b} = {a - b}"
         except ValueError:
-            return "Не могу распознать числа для вычитания."
+            return "Не могу распознать числа."
 
     def handle_multiplication(self, match):
         try:
             a = float(match.group(1))
             b = float(match.group(2))
-            return f"Результат умножения: {a} * {b} = {a * b}"
+            return f"Результат: {a} * {b} = {a * b}"
         except ValueError:
-            return "Не могу распознать числа для умножения."
+            return "Не могу распознать числа."
 
     def handle_division(self, match):
         try:
@@ -144,9 +136,9 @@ class ChatBot:
             b = float(match.group(2))
             if b == 0:
                 return "Ошибка: деление на ноль!"
-            return f"Результат деления: {a} / {b} = {a / b}"
+            return f"Результат: {a} / {b} = {a / b}"
         except ValueError:
-            return "Не могу распознать числа для деления."
+            return "Не могу распознать числа."
 
     def handle_time(self, match):
         now = datetime.now().strftime("%H:%M")
@@ -161,7 +153,6 @@ chat_bot = ChatBot()
 async def telegram_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_message = update.message.text
     user_id = update.message.from_user.id
-    
     bot_response = chat_bot.process(user_message, user_id)
     await update.message.reply_text(bot_response)
 
@@ -174,8 +165,7 @@ def main():
     application = Application.builder().token(TOKEN).build()
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, telegram_handler))
     
-    print("✅ Бот запущен с поддержкой FSM диалогов!")
-    print("Ожидание сообщений...")
+    print("✅ Бот запущен с ML-классификацией!")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":

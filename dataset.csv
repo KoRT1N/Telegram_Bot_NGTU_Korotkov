@@ -1,0 +1,492 @@
+text,intent
+привет,greeting
+здравствуйте,greeting
+добрый день,greeting
+здравствуй,greeting
+приветик,greeting
+здорово,greeting
+доброе утро,greeting
+добрый вечер,greeting
+приветствую,greeting
+салют,greeting
+хай,greeting
+здрасьте,greeting
+хелло,greeting
+hi,greeting
+hello,greeting
+приветствую вас,greeting
+рад вас видеть,greeting
+доброго времени суток,greeting
+привет как дела,greeting
+здравствуйте как поживаете,greeting
+приветствую всех,greeting
+добрый день всем,greeting
+всем привет,greeting
+привет дружище,greeting
+здравствуй друг,greeting
+здрасти,greeting
+приветики,greeting
+здравствуйте господа,greeting
+доброго дня,greeting
+доброго здоровья,greeting
+здравия желаю,greeting
+здравствуйте товарищи,greeting
+приветствую уважаемые,greeting
+доброе утречко,greeting
+добрый вечерок,greeting
+хай хай,greeting
+хеллоу,greeting
+приветик как дела,greeting
+здравствуйте как жизнь,greeting
+добрый день господа,greeting
+привет всем,greeting
+здравствуй мир,greeting
+доброго здравия,greeting
+здравия,greeting
+приветствую тебя,greeting
+здравствуйте дорогие,greeting
+добрый день друзья,greeting
+здорово привет,greeting
+приветствую тебя,greeting
+добрый день как жизнь,greeting
+пока,farewell
+до свидания,farewell
+прощай,farewell
+увидимся,farewell
+всего хорошего,farewell
+давай до свидания,farewell
+пока пока,farewell
+до встречи,farewell
+счастливо,farewell
+бывай,farewell
+прощайте,farewell
+удачи,farewell
+всего доброго,farewell
+увидимся позже,farewell
+ладно пока,farewell
+пока удачи,farewell
+до связи,farewell
+до скорого,farewell
+до завтра,farewell
+пока пока пока,farewell
+всего наилучшего,farewell
+будь здоров,farewell
+увидимся скоро,farewell
+до свидания пока,farewell
+прощаюсь,farewell
+счастливого пути,farewell
+до новых встреч,farewell
+всего,farewell
+покедова,farewell
+чао,farewell
+бай,farewell
+bye,farewell
+goodbye,farewell
+see you,farewell
+до скорой встречи,farewell
+бывай здоров,farewell
+пока прощай,farewell
+удачи тебе,farewell
+всего хорошего пока,farewell
+удачи пока,farewell
+до свидания всего,farewell
+пока удачи,farewell
+бывай пока,farewell
+всего доброго пока,farewell
+до встречи пока,farewell
+погода в москве,weather
+какая погода,weather
+сколько градусов,weather
+будет ли дождь,weather
+температура на улице,weather
+холодно сегодня,weather
+тепло ли,weather
+какой прогноз,weather
+что с погодой,weather
+погода на завтра,weather
+прогноз погоды,weather
+какая температура,weather
+солнечно ли,weather
+ветрено на улице,weather
+идет ли снег,weather
+какая погода сегодня,weather
+какая погода завтра,weather
+сколько градусов на улице,weather
+температура воздуха,weather
+погода сейчас,weather
+что на улице,weather
+сколько градусов тепла,weather
+погода на неделю,weather
+прогноз на сегодня,weather
+погода на сегодня,weather
+какая сегодня погода,weather
+какая завтра погода,weather
+сколько градусов в лондоне,weather
+погода в питере,weather
+температура в берлине,weather
+холодно в париже,weather
+тепло в риме,weather
+прогноз в токио,weather
+будет снег,weather
+пойдет дождь,weather
+сильный ветер,weather
+температура за окном,weather
+сколько на улице градусов,weather
+на улице холодно,weather
+на улице тепло,weather
+на улице жарко,weather
+на улице мороз,weather
+какая температура завтра,weather
+какой прогноз на завтра,weather
+прогноз погоды на завтра,weather
+погода на выходные,weather
+какая погода на выходные,weather
+прогноз на выходные,weather
+погода на послезавтра,weather
+прогноз на послезавтра,weather
+погода в европе,weather
+температура в мире,weather
+какая температура в москве,weather
+москва погода,weather
+спб погода,weather
+питер погода,weather
+лондон погода,weather
+париж погода,weather
+берлин погода,weather
+рим погода,weather
+токио погода,weather
+нью йорк погода,weather
+сколько времени,time
+который час,time
+время сейчас,time
+сколько сейчас времени,time
+скажи время,time
+текущее время,time
+часы покажи,time
+какое сейчас время,time
+который сейчас час,time
+скажи который час,time
+покажи время,time
+сколько время,time
+который час сейчас,time
+часы,time
+время,time
+точное время,time
+московское время,time
+местное время,time
+текущий час,time
+который час в москве,time
+сколько часов,time
+сколько минут,time
+скажи сколько времени,time
+узнать время,time
+время дня,time
+какой сейчас час,time
+который час дня,time
+время суток,time
+текущее время суток,time
+часы покажи,time
+время на часах,time
+который час покажи,time
+который час в питере,time
+сколько сейчас часов,time
+который час сейчас в москве,time
+время московское,time
+текущее время покажи,time
+скажи точное время,time
+сколько времени сейчас,time
+какое сегодня время,time
+который час по москве,time
+сколько времени в москве,time
+время в питере,time
+московское время сейчас,time
+точное московское время,time
+узнать точное время,time
+покажи текущее время,time
+сколько минут прошло,time
+как дела,how_are_you
+как у тебя дела,how_are_you
+как жизнь,how_are_you
+как настроение,how_are_you
+как поживаешь,how_are_you
+как ты,how_are_you
+что нового,how_are_you
+как самочувствие,how_are_you
+как оно,how_are_you
+как вообще,how_are_you
+как делишки,how_are_you
+как успехи,how_are_you
+что с настроением,how_are_you
+как сам,how_are_you
+как ты поживаешь,how_are_you
+как твои дела,how_are_you
+как настроение сегодня,how_are_you
+как жизнь молодая,how_are_you
+как здоровье,how_are_you
+что слышно,how_are_you
+что нового в жизни,how_are_you
+как себя чувствуешь,how_are_you
+как дела у тебя,how_are_you
+как жизнь твоя,how_are_you
+как поживает,how_are_you
+как жить будешь,how_are_you
+как настроение у тебя,how_are_you
+как самочувствие сегодня,how_are_you
+как у тебя настроение,how_are_you
+как у тебя жизнь,how_are_you
+как твои успехи,how_are_you
+что нового у тебя,how_are_you
+как дела как жизнь,how_are_you
+как настроение как дела,how_are_you
+что нового скажешь,how_are_you
+как поживаешь как дела,how_are_you
+как жизнь вообще,how_are_you
+как ты как настроение,how_are_you
+как твои дела что нового,how_are_you
+как жизнь как здоровье,how_are_you
+как настроение как самочувствие,how_are_you
+что слышно нового,how_are_you
+как у тебя все,how_are_you
+как ты сегодня,how_are_you
+как дела сегодня,how_are_you
+как настроение сегодня,how_are_you
+как самочувствие сегодня,how_are_you
+меня зовут,set_name
+мое имя,set_name
+называйте меня,set_name
+зовите меня,set_name
+можно называть,set_name
+обращайтесь ко мне,set_name
+зовут меня,set_name
+имя мое,set_name
+представьтесь,set_name
+напиши мое имя,set_name
+запомни имя,set_name
+пусть меня зовут,set_name
+моё имя,set_name
+меня можно называть,set_name
+мое имя анна,set_name
+зовут анна,set_name
+меня зовут иван,set_name
+называйте меня петр,set_name
+мое имя мария,set_name
+зовите меня дмитрий,set_name
+можно называть алексей,set_name
+меня назвали елена,set_name
+меня зовут сергей,set_name
+я антон,set_name
+меня зовут ольга,set_name
+мое имя николай,set_name
+меня зовут татьяна,set_name
+зовите меня александр,set_name
+мое имя дмитрий,set_name
+меня зовут екатерина,set_name
+называйте меня андрей,set_name
+зовите меня наталья,set_name
+меня зовут михаил,set_name
+я владимир,set_name
+меня зовут ирина,set_name
+мое имя алексей,set_name
+зовите меня игорь,set_name
+меня зовут анастасия,set_name
+называйте меня кирилл,set_name
+мое имя максим,set_name
+меня зовут валентина,set_name
+зовите меня геннадий,set_name
+меня зовут виктор,set_name
+я мария,set_name
+меня зовут александр,set_name
+мое имя павел,set_name
+2 плюс 3,addition
+5 плюс 2,addition
+сложить 4 и 5,addition
+прибавить 3 к 5,addition
+7 + 2,addition
+10 плюс 15,addition
+сложение,addition
+сумма чисел,addition
+посчитай сумму,addition
+сколько будет 8 плюс 7,addition
+прибавь,addition
+добавить,addition
+сложи,addition
+плюс,addition
+вычисли сумму,addition
+2+2,addition
+3+5,addition
+10+20,addition
+100+200,addition
+15+30,addition
+прибавь 5,addition
+добавь 3,addition
+сложить числа,addition
+сложи числа 2 и 3,addition
+найти сумму 5 и 7,addition
+посчитать 8 плюс 9,addition
+вычислить 20+30,addition
+прибавить 15 к 25,addition
+сколько получится если сложить 4 и 6,addition
+сумма 10 и 20,addition
+какая сумма у 3 и 8,addition
+сложение 5 плюс 5,addition
+добавить 7 к 12,addition
+увеличить 8 на 3,addition
+8 увеличить на 5,addition
+15 прибавить 10,addition
+20 добавить 30,addition
+сложить 40 и 50,addition
+сумма 100 и 200,addition
+сколько будет 25+75,addition
+5 минус 2,subtraction
+10 минус 3,subtraction
+вычесть 2 из 5,subtraction
+отнять 3 от 10,subtraction
+15 - 7,subtraction
+разность,subtraction
+вычитание,subtraction
+сколько будет 20 минус 8,subtraction
+отними,subtraction
+вычти,subtraction
+минус,subtraction
+найти разность,subtraction
+10-3,subtraction
+20-5,subtraction
+100-50,subtraction
+отними 10,subtraction
+вычти 5,subtraction
+уменьшить на 2,subtraction
+вычесть 3 из 10,subtraction
+найти разность 20 и 5,subtraction
+сколько получится если 30 минус 15,subtraction
+посчитать 40-25,subtraction
+вычислить 50-30,subtraction
+отнять 7 от 20,subtraction
+уменьшить 100 на 25,subtraction
+разность чисел 8 и 3,subtraction
+какая разность у 15 и 7,subtraction
+вычитание 10 минус 4,subtraction
+из 25 вычесть 10,subtraction
+40 отнять 15,subtraction
+50 уменьшить на 20,subtraction
+75 минус 30,subtraction
+90-45,subtraction
+120-80,subtraction
+200-150,subtraction
+4 умножить на 3,multiplication
+2 * 8,multiplication
+умножить 6 на 7,multiplication
+произведение,multiplication
+умножение,multiplication
+сколько будет 5 умножить на 4,multiplication
+помножить,multiplication
+умножь,multiplication
+умножение чисел,multiplication
+5*5,multiplication
+3*7,multiplication
+10*10,multiplication
+умножить на 2,multiplication
+умножить на 3,multiplication
+произведение чисел,multiplication
+найти произведение 4 и 5,multiplication
+сколько получится если 6 умножить на 7,multiplication
+вычислить 8*9,multiplication
+посчитать 12 умножить на 3,multiplication
+умножить 15 на 4,multiplication
+произведение 20 и 5,multiplication
+какое произведение у 7 и 8,multiplication
+умножение 10 на 10,multiplication
+3 умножить на 15,multiplication
+25*4,multiplication
+30*5,multiplication
+12*12,multiplication
+100*2,multiplication
+50*3,multiplication
+умножить 6 на 8,multiplication
+10 разделить на 2,division
+20 / 4,division
+поделить 15 на 3,division
+разделить 100 на 5,division
+деление,division
+частное,division
+сколько будет 30 разделить на 6,division
+подели,division
+раздели,division
+найти частное,division
+10/2,division
+20/5,division
+100/25,division
+разделить на 2,division
+поделить пополам,division
+найти частное 20 и 4,division
+сколько получится если 30 поделить на 5,division
+вычислить 40/8,division
+посчитать 50 разделить на 10,division
+разделить 60 на 12,division
+частное чисел 100 и 20,division
+какое частное у 81 и 9,division
+деление 144 на 12,division
+90 поделить на 15,division
+120 разделить на 30,division
+200/50,division
+75/15,division
+64/8,division
+49/7,division
+помоги,help
+что ты умеешь,help
+какие команды,help
+расскажи о себе,help
+что можешь,help
+как пользоваться,help
+функции бота,help
+список команд,help
+твои возможности,help
+что ты знаешь,help
+чем можешь помочь,help
+расскажи,help
+подскажи,help
+помощь,help
+как работать,help
+инструкция,help
+что ты умеешь делать,help
+покажи что умеешь,help
+как тебя использовать,help
+что за бот,help
+расскажи о своих возможностях,help
+как с тобой работать,help
+что ты можешь сделать,help
+какие у тебя функции,help
+помоги мне,help
+нужна помощь,help
+подскажи как работать,help
+что ты умеешь покажи,help
+расскажи о своих функциях,help
+как тобой пользоваться,help
+что можно сделать,help
+какие команды есть,help
+список возможностей,help
+твой функционал,help
+что ты умеешь делать расскажи,help
+помоги разобраться,help
+как использовать бота,help
+инструкция по применению,help
+расскажи о себе подробнее,help
+как погода,weather
+как там погода,weather
+как дела на улице,weather
+как там на улице,weather
+сколько градусов,weather
+сколько на улице,weather
+сколько времени сейчас,time
+сколько сейчас,time
+привет как дела,greeting
+здравствуйте как дела,greeting
+как дела привет,how_are_you
+привет как жизнь,greeting
+меня зовут как дела,set_name
+как тебя зовут,set_name
+сколько будет,addition
+сколько будет градусов,weather
+сколько будет 2 плюс 2,addition
+как мне быть,help
+что делать,help
+как дела что делаешь,how_are_you
