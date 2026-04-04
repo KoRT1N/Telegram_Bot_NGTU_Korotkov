@@ -1,16 +1,16 @@
 import spacy
 import re
-from intent_classifier_embeddings import intent_classifier_embeddings
+from intent_classifier import intent_classifier
 
-# Загружаем русскую модель с векторами
+# Загружаем русскую модель
 try:
-    nlp = spacy.load("ru_core_news_md")
-    print("✅ spaCy модель (с векторами) загружена")
+    nlp = spacy.load("ru_core_news_sm")
+    print("✅ spaCy модель загружена")
 except:
     print("Устанавливаю русскую модель...")
     import subprocess
-    subprocess.run(["python", "-m", "spacy", "download", "ru_core_news_md"])
-    nlp = spacy.load("ru_core_news_md")
+    subprocess.run(["python", "-m", "spacy", "download", "ru_core_news_sm"])
+    nlp = spacy.load("ru_core_news_sm")
 
 # База городов с их корнями
 CITY_DATABASE = {
@@ -31,9 +31,6 @@ CITY_DATABASE = {
     'нью': 'Нью-Йорк',
     'йорк': 'Нью-Йорк',
     'ростов': 'Ростов-на-Дону',
-    'казан': 'Казань',
-    'екатеринбург': 'Екатеринбург',
-    'новосибирск': 'Новосибирск',
 }
 
 ENGLISH_CITIES = {
@@ -45,7 +42,6 @@ ENGLISH_CITIES = {
     'tokyo': 'Токио',
     'new york': 'Нью-Йорк',
     'spb': 'Санкт-Петербург',
-    'kazan': 'Казань',
 }
 
 def extract_city_root(word):
@@ -147,19 +143,84 @@ def extract_days(text):
     return None
 
 def detect_intent_fallback(text):
-    """Fallback на правила (когда ML не уверен)"""
+    """Fallback на правила (старая логика)"""
     text_lower = text.lower()
     
-    # Специальные ключевые слова
+    if any(word in text_lower for word in ['привет', 'здравствуй', 'добрый']):
+        return 'greeting'
+    elif any(word in text_lower for word in ['пока', 'до свидания', 'прощай']):
+        return 'farewell'
+    elif any(word in text_lower for word in ['погод', 'температур', 'градус']):
+        return 'weather'
+    elif any(word in text_lower for word in ['время', 'часов']):
+        return 'time'
+    elif any(word in text_lower for word in ['как дела', 'как жизнь']):
+        return 'how_are_you'
+    elif 'зовут' in text_lower:
+        return 'set_name'
+    elif '+' in text_lower:
+        return 'addition'
+    elif '-' in text_lower:
+        return 'subtraction'
+    elif '*' in text_lower:
+        return 'multiplication'
+    elif '/' in text_lower:
+        return 'division'
+    
+    return 'unknown'
+
+def detect_intent_hybrid(text):
+    """Гибридное определение интента: ML + правила"""
+    # Пробуем ML модель
+    intent, confidence = intent_classifier.predict_intent(text, threshold=0.5)
+    
+    print(f"ML предсказание: {intent} (уверенность: {confidence:.2%})")
+    
+    if intent != 'unknown' and confidence > 0.5:
+        return intent
+    
+    # Если ML не уверен, используем fallback
+    fallback_intent = detect_intent_fallback(text)
+    print(f"Fallback предсказание: {fallback_intent}")
+    
+    return fallback_intent
+
+# Загружаем модель с векторами
+try:
+    nlp = spacy.load("ru_core_news_md")
+    print("✅ spaCy модель (с векторами) загружена")
+except:
+    print("Устанавливаю модель...")
+    import subprocess
+    subprocess.run(["python", "-m", "spacy", "download", "ru_core_news_md"])
+    nlp = spacy.load("ru_core_news_md")
+
+def detect_intent_hybrid(text):
+    """Гибридное определение интента с embeddings"""
+    # Пробуем ML с embeddings
+    intent, confidence = intent_classifier_embeddings.predict_intent(text, threshold=0.4)
+    
+    print(f"[Embeddings] intent: {intent}, confidence: {confidence:.2%}")
+    
+    if intent != 'unknown':
+        return intent
+    
+    # Fallback на правила
+    return detect_intent_fallback(text)
+
+def detect_intent_fallback(text):
+    """Правила для случаев низкой уверенности"""
+    text_lower = text.lower()
+    
     if 'настроени' in text_lower:
         return 'how_are_you'
-    if 'погод' in text_lower or 'градус' in text_lower or 'температур' in text_lower:
+    if 'погод' in text_lower or 'градус' in text_lower:
         return 'weather'
     if 'время' in text_lower or 'час' in text_lower:
         return 'time'
-    if 'привет' in text_lower or 'здравствуй' in text_lower or 'добрый' in text_lower:
+    if 'привет' in text_lower or 'здравствуй' in text_lower:
         return 'greeting'
-    if 'пока' in text_lower or 'свидания' in text_lower or 'прощай' in text_lower:
+    if 'пока' in text_lower or 'свидания' in text_lower:
         return 'farewell'
     if 'дела' in text_lower or 'жизн' in text_lower:
         return 'how_are_you'
@@ -173,23 +234,7 @@ def detect_intent_fallback(text):
         return 'multiplication'
     if 'раздел' in text_lower or '/' in text_lower:
         return 'division'
-    if 'помощ' in text_lower or 'умеешь' in text_lower or 'команды' in text_lower:
+    if 'помощ' in text_lower or 'умеешь' in text_lower:
         return 'help'
     
     return 'unknown'
-
-def detect_intent_hybrid(text):
-    """Гибридное определение интента: ML (embeddings) + fallback правила"""
-    # Пробуем ML модель с embeddings
-    intent, confidence = intent_classifier_embeddings.predict_intent(text, threshold=0.4)
-    
-    print(f"[Embeddings ML] intent: {intent}, уверенность: {confidence:.2%}")
-    
-    if intent != 'unknown' and confidence >= 0.4:
-        return intent
-    
-    # Если ML не уверен, используем fallback правила
-    fallback_intent = detect_intent_fallback(text)
-    print(f"[Fallback] intent: {fallback_intent}")
-    
-    return fallback_intent
