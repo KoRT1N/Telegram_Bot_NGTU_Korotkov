@@ -1,11 +1,11 @@
 import spacy
 import re
-from intent_classifier_embeddings import intent_classifier_embeddings
+from bert_intent_classifier import bert_classifier
 
-# Загружаем русскую модель с векторами
+# Загружаем русскую модель spaCy для NER (только для извлечения городов)
 try:
     nlp = spacy.load("ru_core_news_md")
-    print("✅ spaCy модель (с векторами) загружена")
+    print("✅ spaCy модель (для NER) загружена")
 except:
     print("Устанавливаю русскую модель...")
     import subprocess
@@ -147,48 +147,60 @@ def extract_days(text):
     return None
 
 def detect_intent_fallback(text):
-    """Fallback на правила (когда ML не уверен)"""
+    """Fallback на правила (когда BERT не уверен)"""
     text_lower = text.lower()
     
-    # Специальные ключевые слова
-    if 'настроени' in text_lower:
-        return 'how_are_you'
-    if 'погод' in text_lower or 'градус' in text_lower or 'температур' in text_lower:
-        return 'weather'
-    if 'время' in text_lower or 'час' in text_lower:
-        return 'time'
-    if 'привет' in text_lower or 'здравствуй' in text_lower or 'добрый' in text_lower:
-        return 'greeting'
-    if 'пока' in text_lower or 'свидания' in text_lower or 'прощай' in text_lower:
-        return 'farewell'
-    if 'дела' in text_lower or 'жизн' in text_lower:
-        return 'how_are_you'
-    if 'зовут' in text_lower or 'имя' in text_lower:
-        return 'set_name'
-    if 'плюс' in text_lower or '+' in text_lower:
-        return 'addition'
-    if 'минус' in text_lower or '-' in text_lower:
-        return 'subtraction'
-    if 'умнож' in text_lower or '*' in text_lower:
-        return 'multiplication'
-    if 'раздел' in text_lower or '/' in text_lower:
-        return 'division'
-    if 'помощ' in text_lower or 'умеешь' in text_lower or 'команды' in text_lower:
+    # HELP
+    if any(word in text_lower for word in ['умеешь', 'функции', 'команды', 'помоги', 'help', 'можешь', 'расскажи о себе']):
         return 'help'
+    
+    # HOW_ARE_YOU
+    if any(word in text_lower for word in ['настроени', 'дела', 'жизн', 'поживаешь', 'самочувствие']):
+        return 'how_are_you'
+    
+    # WEATHER
+    if any(word in text_lower for word in ['погод', 'градус', 'температур', 'дожд', 'снег', 'ветер']):
+        return 'weather'
+    
+    # TIME
+    if any(word in text_lower for word in ['время', 'час', 'минут', 'секунд']):
+        return 'time'
+    
+    # GREETING
+    if any(word in text_lower for word in ['привет', 'здравствуй', 'добрый', 'здорово']):
+        return 'greeting'
+    
+    # FAREWELL
+    if any(word in text_lower for word in ['пока', 'свидания', 'прощай', 'увидимся']):
+        return 'farewell'
+    
+    # SET_NAME
+    if any(word in text_lower for word in ['зовут', 'имя', 'называй']):
+        return 'set_name'
+    
+    # MATH
+    if '+' in text_lower or 'плюс' in text_lower:
+        return 'addition'
+    if '-' in text_lower or 'минус' in text_lower:
+        return 'subtraction'
+    if '*' in text_lower or 'умнож' in text_lower:
+        return 'multiplication'
+    if '/' in text_lower or 'раздел' in text_lower:
+        return 'division'
     
     return 'unknown'
 
 def detect_intent_hybrid(text):
-    """Гибридное определение интента: ML (embeddings) + fallback правила"""
-    # Пробуем ML модель с embeddings
-    intent, confidence = intent_classifier_embeddings.predict_intent(text, threshold=0.4)
+    """Гибридное определение интента: BERT + fallback правила"""
+    # Пробуем BERT модель
+    intent, confidence = bert_classifier.predict_intent(text, threshold=0.5)
     
-    print(f"[Embeddings ML] intent: {intent}, уверенность: {confidence:.2%}")
+    print(f"[BERT] intent: {intent}, уверенность: {confidence:.2%}")
     
-    if intent != 'unknown' and confidence >= 0.4:
+    if intent != 'unknown' and confidence >= 0.5:
         return intent
     
-    # Если ML не уверен, используем fallback правила
+    # Если BERT не уверен, используем fallback правила
     fallback_intent = detect_intent_fallback(text)
     print(f"[Fallback] intent: {fallback_intent}")
     

@@ -4,7 +4,7 @@ import string
 from datetime import datetime
 from dotenv import load_dotenv
 from telegram import Update
-from telegram.ext import Application, MessageHandler, filters, ContextTypes
+from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
 load_dotenv()
 
@@ -14,6 +14,7 @@ import database
 from logger import log_message
 from dialog_manager import dialog_manager
 from weather_api import handle_weather_dialog
+from nlp_parser import detect_intent_hybrid
 
 class ChatBot:
     def __init__(self):
@@ -53,7 +54,7 @@ class ChatBot:
             self.user_name = self.user_names.get(user_id)
             database.save_user(user_id, self.user_name)
         
-        # Обработка через Dialog Manager
+        # Обработка через Dialog Manager (погода с FSM)
         state = dialog_manager.get_state(user_id) if user_id else None
         
         if state and state.value != "start":
@@ -64,15 +65,54 @@ class ChatBot:
                 log_message(original, weather_response)
                 return weather_response
         
-        # Проверка погоды через ML
-        weather_response = handle_weather_dialog(user_id, original)
-        if weather_response:
-            if user_id:
-                database.log_to_db(user_id, original, weather_response)
-            log_message(original, weather_response)
-            return weather_response
+        # Определяем intent через BERT
+        intent = detect_intent_hybrid(original)
         
-        # Остальные обработчики
+        # HELP интент
+        if intent == 'help':
+            help_text = (
+                "🤖 *Что я умею:*\n\n"
+                "🌤 *Погода* - скажите \"погода в Москве\" или \"какая погода\"\n"
+                "🧮 *Математика* - например \"2 + 3\", \"10 - 5\", \"4 * 3\", \"10 / 2\"\n"
+                "👤 *Запомнить имя* - скажите \"меня зовут Анна\"\n"
+                "⏰ *Время* - спросите \"сколько времени\"\n"
+                "💬 *Как дела* - спросите \"как дела\" или \"как настроение\"\n"
+                "🔮 *Прогноз погоды* - \"погода на завтра\" или \"через 3 дня\"\n\n"
+                "❓ *Помощь* - спросите \"что ты умеешь\""
+            )
+            response = help_text
+            if user_id:
+                database.log_to_db(user_id, original, response)
+            log_message(original, response)
+            return response
+        
+        # Погода (если BERT определил weather, но не обработал Dialog Manager)
+        if intent == 'weather':
+            weather_response = handle_weather_dialog(user_id, original)
+            if weather_response:
+                if user_id:
+                    database.log_to_db(user_id, original, weather_response)
+                log_message(original, weather_response)
+                return weather_response
+        
+        # HOW_ARE_YOU интент
+        if intent == 'how_are_you':
+            response = "У меня всё отлично! А у вас?"
+            if user_id:
+                database.log_to_db(user_id, original, response)
+            log_message(original, response)
+            return response
+        
+        # TIME интент
+        if intent == 'time':
+            now = datetime.now().strftime("%H:%M")
+            response = f"Сейчас {now}."
+            if user_id:
+                database.log_to_db(user_id, original, response)
+            log_message(original, response)
+            return response
+        
+        # Остальные шаблоны (математика, имя, приветствие, прощание)
         for pattern, handler in self.patterns:
             match = pattern.search(cleaned)
             if match:
@@ -82,6 +122,7 @@ class ChatBot:
                 log_message(original, response)
                 return response
         
+        # Если ничего не подошло
         response = "Извините, я не понимаю ваш запрос."
         if user_id:
             database.log_to_db(user_id, original, response)
@@ -112,7 +153,7 @@ class ChatBot:
             b = float(match.group(2))
             return f"Результат: {a} + {b} = {a + b}"
         except ValueError:
-            return "Не могу распознать числа."
+            return "Не могу распознать числа для сложения."
 
     def handle_subtraction(self, match):
         try:
@@ -120,7 +161,7 @@ class ChatBot:
             b = float(match.group(2))
             return f"Результат: {a} - {b} = {a - b}"
         except ValueError:
-            return "Не могу распознать числа."
+            return "Не могу распознать числа для вычитания."
 
     def handle_multiplication(self, match):
         try:
@@ -128,7 +169,7 @@ class ChatBot:
             b = float(match.group(2))
             return f"Результат: {a} * {b} = {a * b}"
         except ValueError:
-            return "Не могу распознать числа."
+            return "Не могу распознать числа для умножения."
 
     def handle_division(self, match):
         try:
@@ -138,7 +179,7 @@ class ChatBot:
                 return "Ошибка: деление на ноль!"
             return f"Результат: {a} / {b} = {a / b}"
         except ValueError:
-            return "Не могу распознать числа."
+            return "Не могу распознать числа для деления."
 
     def handle_time(self, match):
         now = datetime.now().strftime("%H:%M")
@@ -162,10 +203,11 @@ def main():
         print("ОШИБКА: Не найден токен!")
         return
 
-    application = Application.builder().token(TOKEN).build()
+    application = ApplicationBuilder().token(TOKEN).build()
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, telegram_handler))
     
-    print("✅ Бот запущен с ML-классификацией!")
+    print("✅ Бот запущен с BERT-классификацией!")
+    print("Доступные интенты: greeting, farewell, weather, time, how_are_you, set_name, addition, subtraction, multiplication, division, help")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
