@@ -1,0 +1,214 @@
+import os
+import re
+import string
+from datetime import datetime
+from dotenv import load_dotenv
+from telegram import Update
+from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
+
+load_dotenv()
+
+import patterns
+import weather_api
+import database
+from logger import log_message
+from dialog_manager import dialog_manager
+from weather_api import handle_weather_dialog
+from nlp_parser import detect_intent_hybrid
+
+class ChatBot:
+    def __init__(self):
+        self.user_name = None
+        self.current_user_id = None
+        self.user_names = {}
+        self.patterns = []
+        self._register_patterns()
+        database.init_db()
+
+    def _register_patterns(self):
+        self.patterns.extend([
+            (patterns.GREETING, self.handle_greeting),
+            (patterns.FAREWELL, self.handle_farewell),
+            (patterns.SET_NAME, self.handle_set_name),
+            (patterns.ADDITION, self.handle_addition),
+            (patterns.SUBTRACTION, self.handle_subtraction),
+            (patterns.MULTIPLICATION, self.handle_multiplication),
+            (patterns.DIVISION, self.handle_division),
+            (patterns.TIME_QUERY, self.handle_time),
+            (patterns.HOW_ARE_YOU, self.handle_how_are_you),
+        ])
+
+    def preprocess_message(self, text: str) -> str:
+        text = text.lower().strip()
+        return text
+
+    def process(self, message: str, user_id: int = None) -> str:
+        original = message
+        cleaned = self.preprocess_message(message)
+        
+        if user_id:
+            self.current_user_id = user_id
+            db_name = database.get_user(user_id)
+            if db_name:
+                self.user_names[user_id] = db_name
+            self.user_name = self.user_names.get(user_id)
+            database.save_user(user_id, self.user_name)
+        
+        # Обработка через Dialog Manager (погода с FSM)
+        state = dialog_manager.get_state(user_id) if user_id else None
+        
+        if state and state.value != "start":
+            weather_response = handle_weather_dialog(user_id, original)
+            if weather_response:
+                if user_id:
+                    database.log_to_db(user_id, original, weather_response)
+                log_message(original, weather_response)
+                return weather_response
+        
+        # Определяем intent через BERT
+        intent = detect_intent_hybrid(original)
+        
+        # HELP интент
+        if intent == 'help':
+            help_text = (
+                "🤖 *Что я умею:*\n\n"
+                "🌤 *Погода* - скажите \"погода в Москве\" или \"какая погода\"\n"
+                "🧮 *Математика* - например \"2 + 3\", \"10 - 5\", \"4 * 3\", \"10 / 2\"\n"
+                "👤 *Запомнить имя* - скажите \"меня зовут Анна\"\n"
+                "⏰ *Время* - спросите \"сколько времени\"\n"
+                "💬 *Как дела* - спросите \"как дела\" или \"как настроение\"\n"
+                "🔮 *Прогноз погоды* - \"погода на завтра\" или \"через 3 дня\"\n\n"
+                "❓ *Помощь* - спросите \"что ты умеешь\""
+            )
+            response = help_text
+            if user_id:
+                database.log_to_db(user_id, original, response)
+            log_message(original, response)
+            return response
+        
+        # Погода (если BERT определил weather, но не обработал Dialog Manager)
+        if intent == 'weather':
+            weather_response = handle_weather_dialog(user_id, original)
+            if weather_response:
+                if user_id:
+                    database.log_to_db(user_id, original, weather_response)
+                log_message(original, weather_response)
+                return weather_response
+        
+        # HOW_ARE_YOU интент
+        if intent == 'how_are_you':
+            response = "У меня всё отлично! А у вас?"
+            if user_id:
+                database.log_to_db(user_id, original, response)
+            log_message(original, response)
+            return response
+        
+        # TIME интент
+        if intent == 'time':
+            now = datetime.now().strftime("%H:%M")
+            response = f"Сейчас {now}."
+            if user_id:
+                database.log_to_db(user_id, original, response)
+            log_message(original, response)
+            return response
+        
+        # Остальные шаблоны (математика, имя, приветствие, прощание)
+        for pattern, handler in self.patterns:
+            match = pattern.search(cleaned)
+            if match:
+                response = handler(match)
+                if user_id:
+                    database.log_to_db(user_id, original, response)
+                log_message(original, response)
+                return response
+        
+        # Если ничего не подошло
+        response = "Извините, я не понимаю ваш запрос."
+        if user_id:
+            database.log_to_db(user_id, original, response)
+        log_message(original, response)
+        return response
+
+    # ----- Обработчики -----
+    def handle_greeting(self, match):
+        user_name = self.user_names.get(self.current_user_id) if self.current_user_id else None
+        if user_name:
+            return f"Здравствуйте, {user_name}! Чем могу помочь?"
+        return "Здравствуйте! Чем могу помочь?"
+
+    def handle_farewell(self, match):
+        return "До свидания! Было приятно пообщаться."
+
+    def handle_set_name(self, match):
+        name = match.group(1).capitalize()
+        if self.current_user_id:
+            self.user_names[self.current_user_id] = name
+            database.save_user(self.current_user_id, name)
+            self.user_name = name
+        return f"Приятно познакомиться, {name}!"
+
+    def handle_addition(self, match):
+        try:
+            a = float(match.group(1))
+            b = float(match.group(2))
+            return f"Результат: {a} + {b} = {a + b}"
+        except ValueError:
+            return "Не могу распознать числа для сложения."
+
+    def handle_subtraction(self, match):
+        try:
+            a = float(match.group(1))
+            b = float(match.group(2))
+            return f"Результат: {a} - {b} = {a - b}"
+        except ValueError:
+            return "Не могу распознать числа для вычитания."
+
+    def handle_multiplication(self, match):
+        try:
+            a = float(match.group(1))
+            b = float(match.group(2))
+            return f"Результат: {a} * {b} = {a * b}"
+        except ValueError:
+            return "Не могу распознать числа для умножения."
+
+    def handle_division(self, match):
+        try:
+            a = float(match.group(1))
+            b = float(match.group(2))
+            if b == 0:
+                return "Ошибка: деление на ноль!"
+            return f"Результат: {a} / {b} = {a / b}"
+        except ValueError:
+            return "Не могу распознать числа для деления."
+
+    def handle_time(self, match):
+        now = datetime.now().strftime("%H:%M")
+        return f"Сейчас {now}."
+
+    def handle_how_are_you(self, match):
+        return "У меня всё отлично! А у вас?"
+
+# --- Telegram часть ---
+chat_bot = ChatBot()
+
+async def telegram_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_message = update.message.text
+    user_id = update.message.from_user.id
+    bot_response = chat_bot.process(user_message, user_id)
+    await update.message.reply_text(bot_response)
+
+def main():
+    TOKEN = os.getenv("BOT_TOKEN")
+    if not TOKEN:
+        print("ОШИБКА: Не найден токен!")
+        return
+
+    application = ApplicationBuilder().token(TOKEN).build()
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, telegram_handler))
+    
+    print("✅ Бот запущен с BERT-классификацией!")
+    print("Доступные интенты: greeting, farewell, weather, time, how_are_you, set_name, addition, subtraction, multiplication, division, help")
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
+
+if __name__ == "__main__":
+    main()

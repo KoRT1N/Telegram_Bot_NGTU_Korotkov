@@ -1,7 +1,25 @@
-echo python-telegram-bot==20.3 > requirements.txt
-echo python-dotenv==1.0.0 >> requirements.txt
-echo requests==2.31.0 >> requirements.txt
-echo spacy==3.7.2 >> requirements.txt
-echo scikit-learn==1.3.0 >> requirements.txt
-echo pandas==2.1.0 >> requirements.txt
-echo joblib==1.3.0 >> requirements.txt
+# Основные библиотеки
+python-telegram-bot==20.3
+python-dotenv==1.0.0
+requests==2.31.0
+
+# NLP и ML
+spacy==3.7.2
+scikit-learn==1.3.0
+pandas==2.1.0
+joblib==1.3.0
+numpy==1.24.0
+
+# BERT и Transformers
+transformers==4.36.0
+torch==2.1.0
+datasets==2.15.0
+accelerate==1.1.0
+
+# TTS (Silero)
+torchaudio==2.1.0
+num2words==0.5.14  # для преобразования чисел в слова
+
+# Дополнительные
+tqdm==4.66.1
+safetensors==0.4.1
