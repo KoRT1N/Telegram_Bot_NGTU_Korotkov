@@ -30,3 +30,4 @@ Thumbs.db
 "bert_intent_model/" 
 "*.pkl" 
 "logs/" 
+audio_cache/
